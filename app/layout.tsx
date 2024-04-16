@@ -6,23 +6,23 @@ import { Analytics } from "./components/analytics";
 
 export const metadata: Metadata = {
   title: {
-    default: "chronark.com",
-    template: "%s | chronark.com",
+    default: "Fernando Sckaff",
+    template: "%s | Fernando Sckaff",
   },
-  description: "Co-founder of unkey.dev and founder of planetfall.io",
+  description: "Machine learning engineer and software developer",
   openGraph: {
-    title: "chronark.com",
+    title: "Fernando Sckaff",
     description:
-      "Co-founder of unkey.dev and founder of planetfall.io",
-    url: "https://chronark.com",
-    siteName: "chronark.com",
-    images: [
-      {
-        url: "https://chronark.com/og.png",
-        width: 1920,
-        height: 1080,
-      },
-    ],
+      "Machine learning engineer and software developer",
+    // url: "https://github.com/sckaff",
+    // siteName: "chronark.com",
+    // images: [
+    //   {
+    //     url: "https://chronark.com/og.png",
+    //     width: 1920,
+    //     height: 1080,
+    //   },
+    // ],
     locale: "en-US",
     type: "website",
   },
@@ -38,7 +38,7 @@ export const metadata: Metadata = {
     },
   },
   twitter: {
-    title: "Chronark",
+    title: "Fernando Sckaff",
     card: "summary_large_image",
   },
   icons: {
