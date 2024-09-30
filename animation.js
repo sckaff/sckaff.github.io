@@ -1,5 +1,6 @@
 // Set up the scene, camera, and renderer
 const scene = new THREE.Scene(); // Create a new scene
+scene.background = new THREE.Color(0x0c0c0c); // Set the background color of the scene to black
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000); // Create a perspective camera with a 75-degree field of view
 const renderer = new THREE.WebGLRenderer(); // Create a WebGL renderer
 renderer.setSize(window.innerWidth, window.innerHeight); // Set the size of the renderer to match the window dimensions
@@ -7,7 +8,7 @@ document.getElementById('scene-container').appendChild(renderer.domElement); // 
 
 // Create particles geometry
 const particlesGeometry = new THREE.BufferGeometry(); // Create a buffer geometry for particles
-const particleCount = 10000; // Define the number of particles
+const particleCount = 100000; // Define the number of particles
 const positions = new Float32Array(particleCount * 3); // Create an array to store positions of all particles
 
 // Calculate positions for each particle and store them in the positions array
@@ -29,7 +30,7 @@ particlesGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 
 
 // Create material for particles
 const particlesMaterial = new THREE.PointsMaterial({
-    color: 0xffffff, // Set color of particles to white
+    color: 0x333333, // Set color of particles to white
     size: 0.01       // Set size of each particle
 });
 
