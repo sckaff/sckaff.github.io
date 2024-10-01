@@ -6,6 +6,19 @@ body, html {
     overflow: hidden;
 }
 
+
+.test {
+    font-family: 'Montserrat', sans-serif;
+    color: #909090;
+    font-size: 1.2vw;
+}
+
+.test2 {
+    font-family: 'Montserrat', sans-serif;
+    color: #909090;
+    font-size: 0.8vw;
+}
+
 #scene-container {
     position: absolute;
     z-index: 0;

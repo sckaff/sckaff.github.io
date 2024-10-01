@@ -1,7 +1,7 @@
 // Set up the scene, camera, and renderer
 const scene = new THREE.Scene(); // Create a new scene
 scene.background = new THREE.Color(0x0c0c0c); // Set the background color of the scene to black
-const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000); // Create a perspective camera with a 75-degree field of view
+const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000); // Create a perspective camera with a 75-degree field of view
 const renderer = new THREE.WebGLRenderer(); // Create a WebGL renderer
 renderer.setSize(window.innerWidth, window.innerHeight); // Set the size of the renderer to match the window dimensions
 document.getElementById('scene-container').appendChild(renderer.domElement); // Append the renderer's DOM element to the HTML element with ID 'scene-container'
