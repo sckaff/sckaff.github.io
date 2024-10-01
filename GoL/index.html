@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Three.js Shader Example</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Vertex Shader -->
+    <script id="vertexShader" type="x-shader/x-vertex">
+        varying vec2 vUvs;
+        
+        void main() {
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+            vUvs = uv;
+        }
+    </script>
+    
+    <!-- Fragment Shader for Screen -->
+    <script id="fragmentShaderScreen" type="x-shader/x-fragment">
+        precision mediump float;
+        uniform sampler2D uTexture; 
+        varying vec2 vUvs;
+        
+        void main() {
+            vec4 initTexture = texture2D(uTexture, vUvs);
+            vec3 colour = initTexture.rgb;
+            gl_FragColor = vec4(colour, 1.0);
+        }
+    </script>
+    
+    <!-- Fragment Shader for Buffer -->
+    <script id="fragmentShaderBuffer" type="x-shader/x-fragment">
+        precision mediump float;
+        uniform sampler2D uTexture; 
+        uniform vec2 uResolution;
+        varying vec2 vUvs;
+        
+        float GetNeighbours(vec2 p) {
+            float count = 0.0;
+            for(float y = -1.0; y <= 1.0; y++) {
+                for(float x = -1.0; x <= 1.0; x++) {
+                    if(x == 0.0 && y == 0.0) continue;
+                    vec2 offset = vec2(x, y) / uResolution.xy;	
+                    vec4 lookup = texture2D(uTexture, p + offset); 
+                    count += lookup.r > 0.5 ? 1.0 : 0.0;
+                }
+            }
+            return count;
+        }
+        
+        void main() {
+            vec3 color = vec3(0.0);
+            float neighbors = GetNeighbours(vUvs);
+            bool alive = texture2D(uTexture, vUvs).x > 0.5;
+            if(alive && (neighbors == 2.0 || neighbors == 3.0)) { 
+                color = vec3(1.0, 0.0, 0.0);
+            } else if(!alive && (neighbors == 3.0)) { 
+                color = vec3(1.0, 0.0, 0.0);
+            }
+            gl_FragColor = vec4(color, 1.0);
+        }
+    </script>
+
+    <script src="script.js" type="module"></script>
+</body>
+</html>
