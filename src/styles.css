@@ -6,18 +6,6 @@ body, html {
     overflow: hidden;
 }
 
-.test {
-    font-family: 'Montserrat', sans-serif;
-    color: #909090;
-    font-size: 25px;
-}
-
-.test2 {
-    font-family: 'Montserrat', sans-serif;
-    color: #909090;
-    font-size: 15px;
-}
-
 #scene-container {
     position: absolute;
     z-index: 0;
@@ -34,9 +22,74 @@ body, html {
 }
 
 #inner-frame {
-    border: 1px solid #707070;
+    border: 1px solid #acacac;
     width: 100%;
     height: 100%;
 
-    padding: 2vw;
+    padding: 1.5vw;
+}
+
+@font-face {
+    font-family: 'NimbusSanL-Bol';
+    src: url('../fonts/NimbusSanL-Bol.otf') format('opentype');
+}
+
+@font-face {
+    font-family: 'NeueHaasDisplayXThin';
+    src: url('../fonts/NeueHaasDisplayXThin.ttf') format('opentype');
+}
+
+#name {
+    font-family: 'NeueHaasDisplayXThin', monospace;
+    color: #909090;
+}
+
+#title {
+    font-family: 'NeueHaasDisplayXThin', monospace;
+    color: #909090;
+}
+
+#description {
+    font-family: 'NimbusSanL-Bol', monospace;
+    color: #cccccc;
+    font-size: 20px;
+
+    /* Put it on the bottom right */
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 20%;
+    padding: 1vw;
+    font-size: 15px;
+    text-align: left;
+}
+
+/* Medium screens */
+@media (min-width: 600px) {
+    #name {
+        font-size: 18px;
+    }
+    #title {
+        font-size: 15px;
+    }
+}
+
+/* Large screens */
+@media (min-width: 900px) {
+    #name {
+        font-size: 20px;
+    }
+    #title {
+        font-size: 18px;
+    }
+}
+
+/* Extra large screens */
+@media (min-width: 1200px) {
+    #name {
+        font-size: 40px;
+    }
+    #title {
+        font-size: 20px;
+    }
 }

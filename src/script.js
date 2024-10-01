@@ -34,7 +34,9 @@
             particlesGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
 
             const particlesMaterial = new THREE.PointsMaterial({
-                color: 0xffffff,
+                transparent: true,
+                opacity: 1,
+                color: 0x444444,
                 size: 0.02 
             });
 
