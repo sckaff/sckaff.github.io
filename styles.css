@@ -86,3 +86,55 @@ body, html {
         font-size: 25px;
     }
 }
+
+#social-media {
+    position: absolute;
+    color: #3d3d3d;
+    bottom: 1.5vw;
+    right: 1.5vw;
+    display: flex;
+    gap: 1vw;
+}
+
+/* Base styles for social media links */
+#social-media a p {
+    position: relative;
+    color: #3d3d3d;
+    text-transform: uppercase; /* Optional: to make the text look uniform */
+    font-family: 'NeueHaasDisplayXThin', monospace;
+    font-size: 18px;
+    transition: color 0.3s ease; /* Smooth color transition */
+}
+
+/* Hover state for the text color change */
+#social-media a:hover p {
+    color: #909090;
+}
+
+/* Adding an underline effect on hover */
+#social-media a p::after {
+    content: '';
+    position: absolute;
+    bottom: -3px; /* Adjust to position the line just below the text */
+    left: 0;
+    width: 0;
+    height: 2px;
+    background-color: #909090;
+    transition: width 0.3s ease; /* Smooth transition for the line */
+}
+
+/* Expand the line on hover */
+#social-media a:hover p::after {
+    width: 100%;
+}
+
+/* Optional: make the vertical divider lines lighter on hover */
+#social-media p:hover {
+    color: #909090;
+}
+
+/* Adjustments for vertical dividers between links */
+#social-media p {
+    color: #3d3d3d;
+    transition: color 0.3s ease;
+}
