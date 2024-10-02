@@ -18,7 +18,7 @@ const ambientLight = new THREE.AmbientLight(0xffffff, 0.5); // Soft light
 scene.add(ambientLight);
 
 const directionalLight = new THREE.DirectionalLight(0xffffff, 2); // Increase intensity of directional light
-directionalLight.position.set(1, 1, 1).normalize();
+directionalLight.position.set(50, 0, 50).normalize();
 scene.add(directionalLight);
 
 let particleSystem;
@@ -49,8 +49,7 @@ function createParticleSphere(radius) {
     particlesGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
 
     const particlesMaterial = new THREE.PointsMaterial({
-        transparent: true,
-        opacity: 1,
+        transparent: false,
         color: 0x444444,
         size: 0.02 
     });
@@ -89,9 +88,9 @@ loader.load('./fonts/s_ness_serif_8x8_regular.json', function (font) {
   geometry.computeBoundingBox();
   const centerOffset = -0.5 * (geometry.boundingBox.max.x - geometry.boundingBox.min.x);
   textMesh.position.x = centerOffset;
-  textMesh.scale.x = -1;
+  // textMesh.scale.x = -1;
   
-  textMesh.scale.set(0.0058, 0.0058, 0.0058);  // Scale down the text to match the size of the particle system
+  textMesh.scale.set(-0.0058, 0.0058, 0.0058);  // Scale down the text to match the size of the particle system
   textMesh.position.set(0, 0, 0);  // Move the text above the particle system
   
   // Bend the text around a circular path
