@@ -34,7 +34,7 @@ body, html {
 
 @font-face {
     font-family: 'NeueHaasDisplayXThin';
-    src: url('./fonts/neue-haas-display-x-thin.ttf') format('opentype');
+    src: url('fonts/neue-haas-display-x-thin.ttf') format('opentype');
 }
 
 #name {
