@@ -66,7 +66,7 @@ createParticleSphere(initialRadius);
 // ---------- Text Geometry ----------
 const loader = new FontLoader();
 
-loader.load('fonts/S_Ness_Serif_8x8_Regular.json', function (font) {
+loader.load('./public/fonts/s_ness_serif_8x8_regular.json', function (font) {
   const geometry = new TextGeometry('n construction      i', {
     font: font,
     size: 115,
