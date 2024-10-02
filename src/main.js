@@ -25,7 +25,7 @@ let font;
 
 // Function to calculate the appropriate radius based on window size
 function calculateRadius() {
-  return Math.min(window.innerWidth, window.innerHeight) / 100;
+  return Math.min(window.innerWidth, window.innerHeight) / 65;
 }
 
 // Function to calculate the particle count based on window size
