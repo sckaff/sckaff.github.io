@@ -33,11 +33,6 @@ body, html {
 }
 
 @font-face {
-    font-family: 'NimbusSanL-Bol';
-    src: url('../fonts/NimbusSanL-Reg.otf') format('opentype');
-}
-
-@font-face {
     font-family: 'NeueHaasDisplayXThin';
     src: url('../fonts/NeueHaasDisplayXThin.ttf') format('opentype');
 }
