@@ -30,7 +30,7 @@ function createParticleSphere(radius) {
     if (particleSystem) scene.remove(particleSystem);
 
     const particlesGeometry = new THREE.BufferGeometry();
-    const particleCount = 100000;
+    const particleCount = 25000;
     const positions = new Float32Array(particleCount * 3); // x, y, z for each particle
 
     for (let i = 0; i < particleCount; i++) {
