@@ -1,6 +1,4 @@
 import * as THREE from 'three';
-import { FontLoader } from 'three/examples/jsm/loaders/FontLoader.js';
-import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry.js';
 
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -21,11 +19,10 @@ scene.add(directionalLight);
 
 let particleSystem;
 let textMesh;
-let font;
 
 // Function to calculate the appropriate radius based on window size
 function calculateRadius() {
-  return Math.min(window.innerWidth, window.innerHeight) / 65;
+  return Math.min(window.innerWidth, window.innerHeight) / 73;
 }
 
 // Function to calculate the particle count based on window size

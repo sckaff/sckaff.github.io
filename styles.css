@@ -47,6 +47,10 @@ body, html {
     color: #909090;
 }
 
+.divider {
+    font-weight: 300;
+}
+
 #social-media {
     position: absolute;
     color: #3d3d3d;
@@ -179,6 +183,6 @@ body, html {
     }
     #social-media a p,
     #social-media p {
-        font-size: 40px; /* Consistent font size for all elements */
+        font-size: 30px; /* Consistent font size for all elements */
     }
 }
