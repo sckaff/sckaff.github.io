@@ -53,7 +53,7 @@ body, html {
 
 #social-media {
     position: absolute;
-    color: #3d3d3d;
+    color: #909090;
     bottom: 1.5vw;
     right: 1.5vw;
     display: flex;
@@ -64,7 +64,7 @@ body, html {
 /* Base styles for social media links */
 #social-media a p {
     position: relative;
-    color: #3d3d3d;
+    color: #909090;
     text-transform: uppercase;
     font-family: 'NeueHaasDisplayXThin', monospace;
     transition: color 0.3s ease;
@@ -72,7 +72,7 @@ body, html {
 
 /* Hover state for the text color change */
 #social-media a:hover p {
-    color: #909090;
+    color: #ffae00;
 }
 
 /* Adding an underline effect on hover */
@@ -83,7 +83,7 @@ body, html {
     left: 0;
     width: 0;
     height: 2px;
-    background-color: #909090;
+    background-color: #ffae00;
     transition: width 0.3s ease; /* Smooth transition for the line */
 }
 
@@ -131,27 +131,13 @@ body, html {
     }
 }
 
-/* Small screens */
-/* @media (max-width: 599px) {
-    #name {
-        font-size: 23px;
-    }
-    #title {
-        font-size: 11.5px;
-    }
-    #social-media a p,
-    #social-media p {
-        font-size: 15px;
-    }
-} */
-
 /* Medium screens */
 @media (min-width: 600px) {
     #name {
-        font-size: 30px;
+        font-size: 35px;
     }
     #title {
-        font-size: 15px;
+        font-size: 17px;
     }
     #social-media a p,
     #social-media p {
@@ -169,7 +155,7 @@ body, html {
     }
     #social-media a p,
     #social-media p {
-        font-size: 28px; /* Consistent font size for all elements */
+        font-size: 22px; /* Consistent font size for all elements */
     }
 }
 
@@ -183,6 +169,6 @@ body, html {
     }
     #social-media a p,
     #social-media p {
-        font-size: 30px; /* Consistent font size for all elements */
+        font-size: 25px; /* Consistent font size for all elements */
     }
 }
