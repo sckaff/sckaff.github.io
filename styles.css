@@ -49,11 +49,13 @@ body, html {
 #name {
     font-family: 'NeueHaasDisplayXThin', monospace;
     color: #909090;
+    text-shadow: -1px 0 #0f0f0f, 0 1px #0f0f0f, 1px 0 #0f0f0f, 0 -1px #0f0f0f;
 }
 
 #title {
     font-family: 'NeueHaasDisplayXThin', monospace;
     color: #909090;
+    text-shadow: -1px 0 #0f0f0f, 0 1px #0f0f0f, 1px 0 #0f0f0f, 0 -1px #0f0f0f;
 }
 
 .divider {
@@ -68,6 +70,7 @@ body, html {
     display: flex;
     gap: 1vw;
     font-size: 18px;
+    text-shadow: -1px 0 #0f0f0f, 0 1px #0f0f0f, 1px 0 #0f0f0f, 0 -1px #0f0f0f;
 }
 
 /* Base styles for social media links */
@@ -115,10 +118,10 @@ body, html {
 /* Very small screens */
 @media (max-width: 399px) {
     #name {
-        font-size: 18px;
+        font-size: 28px;
     }
     #title {
-        font-size: 9px;
+        font-size: 14px;
     }
     #social-media a p,
     #social-media p {
@@ -129,10 +132,10 @@ body, html {
 /* Small screens */
 @media (min-width: 400px) {
     #name {
-        font-size: 20px;
+        font-size: 33px;
     }
     #title {
-        font-size: 10px;
+        font-size: 16px;
     }
     #social-media a p,
     #social-media p {
@@ -157,10 +160,10 @@ body, html {
 /* Large screens */
 @media (min-width: 900px) {
     #name {
-        font-size: 45px;
+        font-size: 50px;
     }
     #title {
-        font-size: 22px;
+        font-size: 25px;
     }
     #social-media a p,
     #social-media p {
@@ -171,10 +174,10 @@ body, html {
 /* Extra large screens */
 @media (min-width: 1200px) {
     #name {
-        font-size: 50px;
+        font-size: 60px;
     }
     #title {
-        font-size: 25px;
+        font-size: 30px;
     }
     #social-media a p,
     #social-media p {
