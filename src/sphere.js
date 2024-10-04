@@ -24,7 +24,23 @@ let particleSystem;
 const TILT = 23.5 * (Math.PI / 180);
 
 function calculateRadius() {
+    
+    // In case it's a mobile device, double th screen width
+    if (window.innerWidth < 500) {
+        return Math.min(window.innerWidth, window.innerHeight) / 32;
+    }
+    
     return Math.min(window.innerWidth, window.innerHeight) / 60;
+
+    
+    // return Math.min(window.innerWidth, window.innerHeight) / 32;
+}
+
+function calculatePointsPerLine() {
+    const baseCount = 2500; // Base particle count
+    const scaleFactor = (window.innerWidth * window.innerHeight) / (1920 * 1080); // Scale factor based on 1080p resolution
+
+    return Math.floor(baseCount * scaleFactor);
 }
 
 function createStructuredSphere(radius) {
@@ -35,7 +51,7 @@ function createStructuredSphere(radius) {
 
     const latitudeLines = 20;
     const longitudeLines = 20;
-    const pointsPerLine = 1000;
+    const pointsPerLine = calculatePointsPerLine();
 
     // Create latitude lines (horizontal)
     for (let lat = 0; lat < latitudeLines; lat++) {
