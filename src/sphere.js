@@ -24,7 +24,7 @@ let particleSystem;
 const TILT = 23.5 * (Math.PI / 180);
 
 function calculateRadius() {
-    return Math.min(window.innerWidth, window.innerHeight) / 75;
+    return Math.min(window.innerWidth, window.innerHeight) / 60;
 }
 
 function createStructuredSphere(radius) {
