@@ -1,97 +1,185 @@
-import * as THREE from 'three';
+import * as THREE from "three";
 
+/**
+ * Base
+ */
+
+// Scenes
 const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-camera.position.set(2, 5, 10);
-camera.lookAt(0, 0, 0);
+const bufferScene = new THREE.Scene();
 
-const renderer = new THREE.WebGLRenderer();
-scene.background = new THREE.Color(0x0c0c0c);
-renderer.setSize(window.innerWidth, window.innerHeight);
-document.getElementById('scene-container').appendChild(renderer.domElement);
+/**
+ * Sizes
+ */
+const container = document.getElementById('game-of-life');
+const sizes = {
+  width: container.clientWidth,
+  height: container.clientHeight
+};
 
-const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
-scene.add(ambientLight);
+/**
+ * Textures
+ */
+const dataTexture = createDataTexture();
 
-const directionalLight = new THREE.DirectionalLight(0xffffff, 2);
-directionalLight.position.set(50, 0, 50).normalize();
-scene.add(directionalLight);
+/**
+ * Meshes
+ */
+// Geometry
+const geometry = new THREE.PlaneGeometry(2, 2);
 
-let particleSystem;
-let textMesh;
+//Screen resolution
+const resolution = new THREE.Vector3(
+  sizes.width,
+  sizes.height,
+  window.devicePixelRatio
+);
 
-// Function to calculate the appropriate radius based on window size
-function calculateRadius() {
-  return Math.min(window.innerWidth, window.innerHeight) / 73;
-}
-
-// Function to calculate the particle count based on window size
-function calculateParticleCount() {
-  const baseCount = 100000; // Base particle count
-  const scaleFactor = (window.innerWidth * window.innerHeight) / (1920 * 1080); // Scale factor based on 1080p resolution
-  return Math.floor(baseCount * scaleFactor);
-}
-
-// Function to create particle sphere
-function createParticleSphere(radius) {
-  if (particleSystem) scene.remove(particleSystem);
-
-  const particlesGeometry = new THREE.BufferGeometry();
-  const particleCount = calculateParticleCount();
-  const positions = new Float32Array(particleCount * 3); // x, y, z for each particle
-
-  for (let i = 0; i < particleCount; i++) {
-    const theta = Math.random() * Math.PI * 2;
-    const phi = Math.acos((Math.random() * 2) - 1);
-
-    const x = radius * Math.sin(phi) * Math.cos(theta) / 3;
-    const y = radius * Math.sin(phi) * Math.sin(theta) / 3;
-    const z = radius * Math.cos(phi) / 3;
-
-    positions[i * 3] = x;
-    positions[i * 3 + 1] = y;
-    positions[i * 3 + 2] = z;
+/**
+ * Render Buffers
+ */
+let renderBufferA = new THREE.WebGLRenderTarget(
+  sizes.width,
+  sizes.height,
+  {
+    minFilter: THREE.NearestFilter,
+    magFilter: THREE.NearestFilter,
+    format: THREE.RGBAFormat,
+    type: THREE.FloatType,
+    stencilBuffer: false
   }
+);
 
-  particlesGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+let renderBufferB = new THREE.WebGLRenderTarget(
+  sizes.width,
+  sizes.height,
+  {
+    minFilter: THREE.NearestFilter,
+    magFilter: THREE.NearestFilter,
+    format: THREE.RGBAFormat,
+    type: THREE.FloatType,
+    stencilBuffer: false
+  }
+);
 
-  const particlesMaterial = new THREE.PointsMaterial({
-    transparent: false,
-    color: 0x444444,
-    size: 0.02,
-  });
-
-  particleSystem = new THREE.Points(particlesGeometry, particlesMaterial);
-  scene.add(particleSystem);
-}
-
-// Initial setup
-const initialRadius = calculateRadius();
-createParticleSphere(initialRadius);
-
-// Handle window resizing
-window.addEventListener('resize', () => {
-  camera.aspect = window.innerWidth / window.innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(window.innerWidth, window.innerHeight);
-
-  const newRadius = calculateRadius();
-  createParticleSphere(newRadius);
+// Buffer Material
+const bufferMaterial = new THREE.ShaderMaterial({
+  uniforms: {
+    uTexture: { value: dataTexture },
+    uResolution: {
+      value: resolution
+    }
+  },
+  vertexShader: document.getElementById("vertexShader").textContent,
+  fragmentShader: document.getElementById("fragmentShaderBuffer").textContent
 });
 
-// Animation loop
-function animate() {
-  requestAnimationFrame(animate);
+// Screen Material
+const quadMaterial = new THREE.ShaderMaterial({
+  uniforms: {
+    uTexture: { value: null },
+    uResolution: {
+      value: resolution
+    }
+  },
+  vertexShader: document.getElementById("vertexShader").textContent,
+  fragmentShader: document.getElementById("fragmentShaderScreen").textContent
+});
 
-  if (particleSystem) {
-    particleSystem.rotation.y += 0.001;
-  }
+// Meshes
+const mesh = new THREE.Mesh(geometry, quadMaterial);
+scene.add(mesh);
 
-  if (textMesh) {
-    textMesh.rotation.y -= 0.0125;
-  }
+// Meshes
+const bufferMesh = new THREE.Mesh(geometry, bufferMaterial);
+bufferScene.add(bufferMesh);
 
+/**
+ * Renderer
+ */
+const renderer = new THREE.WebGLRenderer();
+renderer.setSize(sizes.width, sizes.height);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+// Append to the scene-container element instead of body
+container.appendChild(renderer.domElement);
+
+const onWindowResize = () => {
+  // Update sizes based on the container
+  sizes.width = container.clientWidth;
+  sizes.height = container.clientHeight;
+
+  // Update camera
+  camera.updateProjectionMatrix();
+
+  // Update renderer
+  renderer.setSize(sizes.width, sizes.height);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+  // Update uniforms
+  quadMaterial.uniforms.uResolution.value.x = sizes.width;
+  quadMaterial.uniforms.uResolution.value.y = sizes.height;
+};
+
+window.addEventListener('resize', onWindowResize);
+
+/**
+ * Camera
+ */
+const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+
+/**
+ * Animate
+ */
+const tick = () => {
+  // Render to framebuffer
+  renderer.setRenderTarget(renderBufferA);
+  renderer.render(bufferScene, camera);
+
+  mesh.material.uniforms.uTexture.value = renderBufferA.texture;
+  renderer.setRenderTarget(null);  // Render to screen
   renderer.render(scene, camera);
-}
 
-animate();
+  // Ping-pong framebuffers
+  const temp = renderBufferA;
+  renderBufferA = renderBufferB;
+  renderBufferB = temp;
+  bufferMaterial.uniforms.uTexture.value = renderBufferB.texture;
+
+  window.requestAnimationFrame(tick);
+};
+
+tick();
+
+/**
+ * CREATE RANDOM NOISY TEXTURE
+ */
+function createDataTexture() {
+  const size = sizes.width * sizes.height;
+  const data = new Uint8Array(4 * size);
+
+  for (let i = 0; i < size; i++) {
+    const stride = i * 4;
+    if (Math.random() < 0.5) {
+      data[stride] = 255;
+      data[stride + 1] = 255;
+      data[stride + 2] = 255;
+      data[stride + 3] = 255;
+    } else {
+      data[stride] = 0;
+      data[stride + 1] = 0;
+      data[stride + 2] = 0;
+      data[stride + 3] = 255;
+    }
+  }
+
+  const texture = new THREE.DataTexture(
+    data,
+    sizes.width,
+    sizes.height,
+    THREE.RGBAFormat
+  );
+  texture.needsUpdate = true;
+
+  return texture;
+}
