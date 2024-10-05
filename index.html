@@ -156,13 +156,17 @@
 
     window.onload = () => {
       console.log('All assets (images, stylesheets, scripts) are fully loaded');
-      import("/src/game_of_life.js").then(() => {
-        console.log('Game of Life script fully loaded');
-      });
 
-      import("/src/sphere.js").then(() => {
-        console.log('Sphere script fully loaded');
-      });
+      // Dynamically create and append script elements
+      const gameOfLifeScript = document.createElement('script');
+      gameOfLifeScript.type = 'module';
+      gameOfLifeScript.src = '/src/game_of_life.js';
+      document.body.appendChild(gameOfLifeScript);
+
+      const sphereScript = document.createElement('script');
+      sphereScript.type = 'module';
+      sphereScript.src = '/src/sphere.js';
+      document.body.appendChild(sphereScript);
     };
   </script>
 
