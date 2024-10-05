@@ -32,7 +32,7 @@ const geometry = new THREE.PlaneGeometry(2, 2);
 const resolution = new THREE.Vector3(
   sizes.width,
   sizes.height,
-  window.devicePixelRatio
+  Math.min(window.devicePixelRatio, 1.5)
 );
 
 /**
@@ -45,7 +45,7 @@ let renderBufferA = new THREE.WebGLRenderTarget(
     minFilter: THREE.NearestFilter,
     magFilter: THREE.NearestFilter,
     format: THREE.RGBAFormat,
-    type: THREE.FloatType,
+    type: THREE.UnsignedByteType,
     stencilBuffer: false
   }
 );
@@ -57,7 +57,7 @@ let renderBufferB = new THREE.WebGLRenderTarget(
     minFilter: THREE.NearestFilter,
     magFilter: THREE.NearestFilter,
     format: THREE.RGBAFormat,
-    type: THREE.FloatType,
+    type: THREE.UnsignedByteType,
     stencilBuffer: false
   }
 );
@@ -131,20 +131,26 @@ const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
 /**
  * Animate
  */
-const tick = () => {
-  // Render to framebuffer
-  renderer.setRenderTarget(renderBufferA);
-  renderer.render(bufferScene, camera);
+let lastTime = 0;
+const frameRate = 30;
 
-  mesh.material.uniforms.uTexture.value = renderBufferA.texture;
-  renderer.setRenderTarget(null);  // Render to screen
-  renderer.render(scene, camera);
+const tick = (time) => {
+  if (time - lastTime >= 1000 / frameRate) {
+    // Render only at the defined frame rate
+    renderer.setRenderTarget(renderBufferA);
+    renderer.render(bufferScene, camera);
 
-  // Ping-pong framebuffers
-  const temp = renderBufferA;
-  renderBufferA = renderBufferB;
-  renderBufferB = temp;
-  bufferMaterial.uniforms.uTexture.value = renderBufferB.texture;
+    mesh.material.uniforms.uTexture.value = renderBufferA.texture;
+    renderer.setRenderTarget(null);
+    renderer.render(scene, camera);
+
+    const temp = renderBufferA;
+    renderBufferA = renderBufferB;
+    renderBufferB = temp;
+    bufferMaterial.uniforms.uTexture.value = renderBufferB.texture;
+
+    lastTime = time;
+  }
 
   window.requestAnimationFrame(tick);
 };
