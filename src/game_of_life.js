@@ -1,5 +1,89 @@
 import * as THREE from "three";
 
+
+/**
+ * GLSL Shaders
+ */
+const vertexShaderSource = `
+  varying vec2 vUvs;
+
+  void main() {
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+    vUvs = uv;
+  }
+`;
+
+const fragmentShaderScreenSource = `
+  precision mediump float;
+
+  // Input texture
+  uniform sampler2D uTexture; 
+  varying vec2 vUvs;
+
+  void main() {
+    // Special method to sample from texture
+    vec4 initTexture = texture2D(uTexture, vUvs);
+    vec3 colour = initTexture.rgb;
+    gl_FragColor = vec4(colour, 1.0);
+  }
+`;
+
+const fragmentShaderBufferSource = `
+  precision highp float;
+
+  // Our input texture
+  uniform sampler2D uTexture; 
+  uniform vec2 uResolution;
+
+  varying vec2 vUvs;
+
+  float GetNeighbours(vec2 p) {
+    float count = 0.0;
+
+    for (float y = -1.0; y <= 1.0; y++) {
+      for (float x = -1.0; x <= 1.0; x++) {
+        if (x == 0.0 && y == 0.0)
+            continue;
+
+        // Scale the offset down
+        vec2 offset = vec2(x, y) / uResolution.xy;
+
+        // Apply offset and sample texture	 
+        vec4 lookup = texture2D(uTexture, p + offset);
+
+        // Accumulate the result
+        float luminance = (lookup.r + lookup.g + lookup.b) / 3.0;
+        count += luminance > 0.18 ? 1.0 : 0.0;
+      }
+    }
+    return count;
+  }
+
+  void main() {
+    vec3 deadColor = vec3(0.06, 0.06, 0.06);
+    vec3 aliveColor = vec3(0.19, 0.19, 0.19);
+
+    float neighbors = GetNeighbours(vUvs);
+
+    vec4 currentCell = texture2D(uTexture, vUvs);
+    float luminance = (currentCell.r + currentCell.g + currentCell.b) / 3.0;
+    bool alive = luminance > 0.18;
+
+    vec3 color = deadColor;
+
+    if (alive && (neighbors == 2.0 || neighbors == 3.0)) {
+        color = aliveColor;
+    } else if (!alive && neighbors == 3.0) {
+        // Gold like the sun!
+        color = vec3(0.471, 0.294, 0.);
+    }
+
+    gl_FragColor = vec4(color, 1.0);
+  }
+`;
+
+
+
 /**
  * Base
  */
@@ -77,8 +161,8 @@ const bufferMaterial = new THREE.ShaderMaterial({
       value: resolution
     }
   },
-  vertexShader: document.getElementById("vertexShader").textContent,
-  fragmentShader: document.getElementById("fragmentShaderBuffer").textContent
+  vertexShader: vertexShaderSource,
+  fragmentShader: fragmentShaderBufferSource
 });
 
 // Screen Material
@@ -89,8 +173,8 @@ const quadMaterial = new THREE.ShaderMaterial({
       value: resolution
     }
   },
-  vertexShader: document.getElementById("vertexShader").textContent,
-  fragmentShader: document.getElementById("fragmentShaderScreen").textContent
+  vertexShader: vertexShaderSource,
+  fragmentShader: fragmentShaderScreenSource
 });
 
 // Meshes
