@@ -68,6 +68,7 @@
       </div>
   </div>
 
+  <!-- Shaders are embedded in the HTML -->
   <script id="vertexShader" type="x-shader/x-vertex">
     varying vec2 vUvs;
     
@@ -78,7 +79,6 @@
   </script>
     
   <script id="fragmentShaderScreen" type="x-shader/x-fragment">
-    
     precision mediump float;
 
     // Input texture
@@ -90,7 +90,6 @@
       vec4 initTexture = texture2D(uTexture, vUvs);
       vec3 colour = initTexture.rgb;
       gl_FragColor = vec4(colour, 1.0);
-    
     }
   </script>
     
@@ -148,7 +147,24 @@
   }
   </script>
 
-  <script type="module" src="/src/game_of_life.js"></script>
-  <script type="module" src="/src/sphere.js"></script>
+  <!-- Load JavaScript modules after the DOM and shaders are fully parsed -->
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      // Ensure all scripts and shaders are loaded before initializing WebGL
+      console.log('DOM fully loaded and parsed');
+    });
+
+    window.onload = () => {
+      console.log('All assets (images, stylesheets, scripts) are fully loaded');
+      import("/src/game_of_life.js").then(() => {
+        console.log('Game of Life script fully loaded');
+      });
+
+      import("/src/sphere.js").then(() => {
+        console.log('Sphere script fully loaded');
+      });
+    };
+  </script>
+
 </body>
 </html>
