@@ -21,6 +21,13 @@ const sizes = {
  * Textures
  */
 const dataTexture = createDataTexture();
+dataTexture.needsUpdate = true;
+
+// Wait for the texture to fully load before starting the render loop
+dataTexture.onUpdate = () => {
+  tick();  // Only start the animation loop after the texture is ready
+};
+
 
 /**
  * Meshes
@@ -99,7 +106,7 @@ bufferScene.add(bufferMesh);
  */
 const renderer = new THREE.WebGLRenderer();
 renderer.setSize(sizes.width, sizes.height);
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
 
 // Append to the scene-container element instead of body
 container.appendChild(renderer.domElement);
