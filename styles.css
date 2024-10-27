@@ -25,7 +25,7 @@ body, html {
 }
 
 #workframe {
-    background-color: rgba(255, 255, 255, 0); /* Transparent background */
+    background-color: rgba(255, 255, 255, 0);
     position: relative;
     z-index: 1;
 
@@ -46,6 +46,11 @@ body, html {
     src: url('./public/fonts/neue-haas-display-x-thin.ttf') format('opentype');
 }
 
+@font-face {
+    font-family: 'GilliusADFBoldCondensed';
+    src: url('./public/fonts/gillius-adf.bold-cond.otf') format('opentype');
+}
+
 #name {
     font-family: 'NeueHaasDisplayXThin', monospace;
     color: #909090;
@@ -56,6 +61,28 @@ body, html {
     font-family: 'NeueHaasDisplayXThin', monospace;
     color: #909090;
     text-shadow: -1px 0 #0f0f0f, 0 1px #0f0f0f, 1px 0 #0f0f0f, 0 -1px #0f0f0f;
+}
+
+#quote-container {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 17%;
+    padding: 1.5vw;
+}
+
+#quote {
+    font-family: 'NeueHaasDisplayXThin', monospace;
+    color: #909090;
+    text-shadow: -1px 0 #0f0f0f, 0 1px #0f0f0f, 1px 0 #0f0f0f, 0 -1px #0f0f0f;
+    font-size: 18px;
+}
+
+#author {
+    font-family: 'NeueHaasDisplayXThin', monospace;
+    color: #909090;
+    text-shadow: -1px 0 #0f0f0f, 0 1px #0f0f0f, 1px 0 #0f0f0f, 0 -1px #0f0f0f;
+    font-family: 'GilliusADFBoldCondensed', monospace;
 }
 
 .divider {
@@ -131,6 +158,12 @@ body, html {
     #social-media p {
         font-size: 12px; /* Consistent font size for all elements */
     }
+    #quote {
+        font-size: 0;
+    }
+    #author {
+        font-size: 0;
+    }
 }
 
 /* Small screens */
@@ -144,6 +177,12 @@ body, html {
     #social-media a p,
     #social-media p {
         font-size: 12px; /* Consistent font size for all elements */
+    }
+    #quote {
+        font-size: 0;
+    }
+    #author {
+        font-size: 0;
     }
 }
 
@@ -173,6 +212,15 @@ body, html {
     #social-media p {
         font-size: 22px; /* Consistent font size for all elements */
     }
+    #quote-container {
+        width: 31%;
+    }
+    #quote {
+        font-size: 20px;
+    }
+    #author {
+        font-size: 17px;
+    }
 }
 
 /* Extra large screens */
@@ -186,5 +234,14 @@ body, html {
     #social-media a p,
     #social-media p {
         font-size: 25px; /* Consistent font size for all elements */
+    }
+    #quote-container {
+        width: 23%;
+    }
+    #quote {
+        font-size: 25px;
+    }
+    #author {
+        font-size: 20px;
     }
 }
