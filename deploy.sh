@@ -28,4 +28,10 @@ echo "Committing changes..."
 git add .
 git commit -m "$COMMIT_MESSAGE"
 
-echo "Done! Changes committed with message: '$COMMIT_MESSAGE'"
+echo "Changes committed with message: '$COMMIT_MESSAGE'"
+
+# Step 4: Pushing code to main branch
+echo "Pushing code to 'main' branch"
+git push origin main
+
+echo "Done! Code pushed to GitHub!"
