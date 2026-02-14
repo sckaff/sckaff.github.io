@@ -17,7 +17,7 @@ COMMIT_MESSAGE="$2"
 
 # Step 1: Add CNAME file to dist
 echo "Adding CNAME file to dist..."
-echo "sckaff.io" > dist/CNAME
+# Removed CNAME redirect - using sckaff.github.io
 
 # Step 2: Rename dist to docs
 echo "Renaming dist to docs..."
