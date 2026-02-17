@@ -75,7 +75,11 @@ body, html {
     font-family: 'NeueHaasDisplayXThin', monospace;
     color: #909090;
     text-shadow: -1px 0 #0f0f0f, 0 1px #0f0f0f, 1px 0 #0f0f0f, 0 -1px #0f0f0f;
-    font-size: 16px;
+    font-size: 18px;
+    white-space: nowrap;
+    display: block;
+    width: max-content;
+    margin-left: auto;
 }
 
 #author {
