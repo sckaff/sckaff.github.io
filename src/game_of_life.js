@@ -16,12 +16,16 @@ const fragmentShaderScreenSource = `
   precision mediump float;
 
   uniform sampler2D uTexture; 
+  uniform float uIntensity;
+  uniform float uOpacity;
   varying vec2 vUvs;
 
   void main() {
     vec4 initTexture = texture2D(uTexture, vUvs);
-    vec3 colour = initTexture.rgb;
-    gl_FragColor = vec4(colour, 1.0);
+    vec3 colour = clamp(initTexture.rgb * uIntensity, 0.0, 1.0);
+    vec3 background = vec3(0.06, 0.06, 0.06);
+    vec3 blended = mix(background, colour, uOpacity);
+    gl_FragColor = vec4(blended, 1.0);
   }
 `;
 
@@ -72,162 +76,228 @@ const fragmentShaderBufferSource = `
   }
 `;
 
-/**
- * Base
- */
+const container = document.getElementById("game-of-life");
 
-// Scenes
-const scene = new THREE.Scene();
-const bufferScene = new THREE.Scene();
+if (container) {
+  initGameOfLife(container);
+}
 
-/**
- * Sizes
- */
-const container = document.getElementById('game-of-life');
-const sizes = {
-  width: container.clientWidth,
-  height: container.clientHeight
-};
+function initGameOfLife(containerEl) {
+  /**
+   * Base
+   */
 
-/**
- * Textures
- */
-const dataTexture = createDataTexture();
+  // Scenes
+  const scene = new THREE.Scene();
+  const bufferScene = new THREE.Scene();
 
-/**
- * Meshes
- */
-// Geometry
-const geometry = new THREE.PlaneGeometry(2, 2);
+  /**
+   * Sizes
+   */
+  const sizes = {
+    width: containerEl.clientWidth,
+    height: containerEl.clientHeight
+  };
 
-//Screen resolution
-const resolution = new THREE.Vector3(
-  sizes.width,
-  sizes.height,
-  window.devicePixelRatio
-);
+  /**
+   * Render sizing
+   */
+  const getPixelRatio = () => Math.min(window.devicePixelRatio, 2);
+  const getRenderScale = () => {
+    const isSmallScreen = window.matchMedia("(max-width: 700px)").matches;
+    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (prefersReducedMotion) return isSmallScreen ? 0.28 : 0.5;
+    return isSmallScreen ? 0.35 : 1;
+  };
+  const getRenderSize = () => {
+    const pixelRatio = getPixelRatio();
+    return {
+      width: Math.max(1, Math.floor(sizes.width * pixelRatio * getRenderScale())),
+      height: Math.max(1, Math.floor(sizes.height * pixelRatio * getRenderScale())),
+      pixelRatio
+    };
+  };
 
-/**
- * Render Buffers
- */
-let renderBufferA = new THREE.WebGLRenderTarget(
-  sizes.width,
-  sizes.height,
-  {
-    minFilter: THREE.NearestFilter,
-    magFilter: THREE.NearestFilter,
-    format: THREE.RGBAFormat,
-    type: THREE.FloatType,
-    stencilBuffer: false
-  }
-);
+  let renderSize = getRenderSize();
 
-let renderBufferB = new THREE.WebGLRenderTarget(
-  sizes.width,
-  sizes.height,
-  {
-    minFilter: THREE.NearestFilter,
-    magFilter: THREE.NearestFilter,
-    format: THREE.RGBAFormat,
-    type: THREE.FloatType,
-    stencilBuffer: false
-  }
-);
+  /**
+   * Textures
+   */
+  let dataTexture = createDataTexture(renderSize.width, renderSize.height);
 
-// Buffer Material
-const bufferMaterial = new THREE.ShaderMaterial({
-  uniforms: {
-    uTexture: { value: dataTexture },
-    uResolution: {
-      value: resolution
+  /**
+   * Meshes
+   */
+  // Geometry
+  const geometry = new THREE.PlaneGeometry(2, 2);
+
+  // Screen resolution
+  const resolution = new THREE.Vector3(
+    renderSize.width,
+    renderSize.height,
+    renderSize.pixelRatio
+  );
+
+  /**
+   * Render Buffers
+   */
+  let renderBufferA = new THREE.WebGLRenderTarget(
+    renderSize.width,
+    renderSize.height,
+    {
+      minFilter: THREE.NearestFilter,
+      magFilter: THREE.NearestFilter,
+      format: THREE.RGBAFormat,
+      type: THREE.FloatType,
+      stencilBuffer: false
     }
-  },
-  vertexShader: vertexShaderSource,
-  fragmentShader: fragmentShaderBufferSource
-});
+  );
 
-// Screen Material
-const quadMaterial = new THREE.ShaderMaterial({
-  uniforms: {
-    uTexture: { value: null },
-    uResolution: {
-      value: resolution
+  let renderBufferB = new THREE.WebGLRenderTarget(
+    renderSize.width,
+    renderSize.height,
+    {
+      minFilter: THREE.NearestFilter,
+      magFilter: THREE.NearestFilter,
+      format: THREE.RGBAFormat,
+      type: THREE.FloatType,
+      stencilBuffer: false
     }
-  },
-  vertexShader: vertexShaderSource,
-  fragmentShader: fragmentShaderScreenSource
-});
+  );
 
-// Meshes
-const mesh = new THREE.Mesh(geometry, quadMaterial);
-scene.add(mesh);
+  // Buffer Material
+  const bufferMaterial = new THREE.ShaderMaterial({
+    uniforms: {
+      uTexture: { value: dataTexture },
+      uResolution: {
+        value: resolution
+      }
+    },
+    vertexShader: vertexShaderSource,
+    fragmentShader: fragmentShaderBufferSource
+  });
 
-// Meshes
-const bufferMesh = new THREE.Mesh(geometry, bufferMaterial);
-bufferScene.add(bufferMesh);
+  // Screen Material
+  const quadMaterial = new THREE.ShaderMaterial({
+    uniforms: {
+      uTexture: { value: null },
+      uIntensity: { value: 1.0 },
+      uOpacity: { value: 0.45 },
+      uResolution: {
+        value: resolution
+      }
+    },
+    vertexShader: vertexShaderSource,
+    fragmentShader: fragmentShaderScreenSource
+  });
 
-/**
- * Renderer
- */
-const renderer = new THREE.WebGLRenderer();
-renderer.setSize(sizes.width, sizes.height);
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  // Meshes
+  const mesh = new THREE.Mesh(geometry, quadMaterial);
+  scene.add(mesh);
 
-// Append to the scene-container element instead of body
-container.appendChild(renderer.domElement);
+  // Meshes
+  const bufferMesh = new THREE.Mesh(geometry, bufferMaterial);
+  bufferScene.add(bufferMesh);
 
-const onWindowResize = () => {
-  // Update sizes based on the container
-  sizes.width = container.clientWidth;
-  sizes.height = container.clientHeight;
-
-  // Update camera
-  camera.updateProjectionMatrix();
-
-  // Update renderer
+  /**
+   * Renderer
+   */
+  const renderer = new THREE.WebGLRenderer();
   renderer.setSize(sizes.width, sizes.height);
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setPixelRatio(renderSize.pixelRatio);
 
-  // Update uniforms
-  quadMaterial.uniforms.uResolution.value.x = sizes.width;
-  quadMaterial.uniforms.uResolution.value.y = sizes.height;
-};
+  // Append to the scene-container element instead of body
+  containerEl.appendChild(renderer.domElement);
 
-window.addEventListener('resize', onWindowResize);
+  const resetBuffers = () => {
+    renderSize = getRenderSize();
+    dataTexture = createDataTexture(renderSize.width, renderSize.height);
 
-/**
- * Camera
- */
-const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+    renderBufferA.setSize(renderSize.width, renderSize.height);
+    renderBufferB.setSize(renderSize.width, renderSize.height);
 
-/**
- * Animate
- */
-const tick = () => {
-  // Render to framebuffer
-  renderer.setRenderTarget(renderBufferA);
-  renderer.render(bufferScene, camera);
+    resolution.set(renderSize.width, renderSize.height, renderSize.pixelRatio);
+    bufferMaterial.uniforms.uTexture.value = dataTexture;
+    bufferMaterial.uniforms.uResolution.value = resolution;
+    quadMaterial.uniforms.uResolution.value = resolution;
 
-  mesh.material.uniforms.uTexture.value = renderBufferA.texture;
-  renderer.setRenderTarget(null);  // Render to screen
-  renderer.render(scene, camera);
+    renderer.setSize(sizes.width, sizes.height);
+    renderer.setPixelRatio(renderSize.pixelRatio);
+  };
 
-  // Ping-pong framebuffers
-  const temp = renderBufferA;
-  renderBufferA = renderBufferB;
-  renderBufferB = temp;
-  bufferMaterial.uniforms.uTexture.value = renderBufferB.texture;
+  const onWindowResize = () => {
+    sizes.width = containerEl.clientWidth;
+    sizes.height = containerEl.clientHeight;
+    resetBuffers();
+  };
 
+  window.addEventListener("resize", onWindowResize);
+
+  /**
+   * Camera
+   */
+  const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+
+  /**
+   * Animate
+   */
+  const getTargetFps = () => {
+    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const isSmallScreen = window.matchMedia("(max-width: 700px)").matches;
+    if (prefersReducedMotion) return isSmallScreen ? 12 : 20;
+    return isSmallScreen ? 20 : window.matchMedia("(max-width: 1000px)").matches ? 30 : 60;
+  };
+  let targetFps = getTargetFps();
+  let frameInterval = 1000 / targetFps;
+  let lastFrameTime = 0;
+  let paused = false;
+
+  const tick = (now) => {
+    if (paused) {
+      window.requestAnimationFrame(tick);
+      return;
+    }
+
+    if (now - lastFrameTime >= frameInterval) {
+      lastFrameTime = now;
+
+      renderer.setRenderTarget(renderBufferA);
+      renderer.render(bufferScene, camera);
+
+      mesh.material.uniforms.uTexture.value = renderBufferA.texture;
+      renderer.setRenderTarget(null);
+      renderer.render(scene, camera);
+
+      const temp = renderBufferA;
+      renderBufferA = renderBufferB;
+      renderBufferB = temp;
+      bufferMaterial.uniforms.uTexture.value = renderBufferB.texture;
+    }
+
+    window.requestAnimationFrame(tick);
+  };
+
+  document.addEventListener("visibilitychange", () => {
+    paused = document.hidden;
+  });
+
+  const onMotionPreferenceChange = () => {
+    targetFps = getTargetFps();
+    frameInterval = 1000 / targetFps;
+    resetBuffers();
+  };
+
+  window.matchMedia("(prefers-reduced-motion: reduce)").addEventListener("change", onMotionPreferenceChange);
+
+  resetBuffers();
   window.requestAnimationFrame(tick);
-};
-
-tick();
+}
 
 /**
  * CREATE RANDOM NOISY TEXTURE
  */
-function createDataTexture() {
-  const size = sizes.width * sizes.height;
+function createDataTexture(width, height) {
+  const size = width * height;
   const data = new Uint8Array(4 * size);
 
   for (let i = 0; i < size; i++) {
@@ -247,8 +317,8 @@ function createDataTexture() {
 
   const texture = new THREE.DataTexture(
     data,
-    sizes.width,
-    sizes.height,
+    width,
+    height,
     THREE.RGBAFormat
   );
   texture.needsUpdate = true;

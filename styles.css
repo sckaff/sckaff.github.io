@@ -1,9 +1,19 @@
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
 body, html {
     margin: 0;
     padding: 0;
     height: 100%;
     width: 100%;
     overflow: hidden;
+}
+
+:root {
+    --frame-border: clamp(12px, 2.4vw, 34px);
+    --frame-padding: clamp(12px, 2vw, 28px);
+    --edge-gap: clamp(12px, 2vw, 24px);
 }
 
 #game-of-life {
@@ -31,14 +41,14 @@ body, html {
 
     width: 100%;
     height: 100%;
-    border: 2vw solid #0f0f0f;
+    border: var(--frame-border) solid #0f0f0f;
 }
 
 #inner-frame {
     border: 1px solid #909090;
     width: 100%;
     height: 100%;
-    padding: 1.5vw;
+    padding: var(--frame-padding);
 }
 
 @font-face {
@@ -65,10 +75,11 @@ body, html {
 
 #quote-container {
     position: absolute;
-    top: 0;
-    right: 0;
-    width: 17%;
-    padding: 1.5vw;
+    top: var(--frame-padding);
+    right: var(--frame-padding);
+    width: min(60vw, 760px);
+    max-width: calc(100% - (2 * var(--frame-padding)));
+    padding: 0;
 }
 
 #quote {
@@ -77,8 +88,9 @@ body, html {
     text-shadow: -1px 0 #0f0f0f, 0 1px #0f0f0f, 1px 0 #0f0f0f, 0 -1px #0f0f0f;
     font-size: 18px;
     white-space: nowrap;
+    text-align: right;
     display: block;
-    width: max-content;
+    width: 100%;
     margin-left: auto;
 }
 
@@ -87,6 +99,8 @@ body, html {
     color: #909090;
     text-shadow: -1px 0 #0f0f0f, 0 1px #0f0f0f, 1px 0 #0f0f0f, 0 -1px #0f0f0f;
     font-family: 'GilliusADFBoldCondensed', monospace;
+    text-align: right;
+    display: block;
 }
 
 .divider {
@@ -100,8 +114,8 @@ body, html {
 #social-media {
     position: absolute;
     color: #909090;
-    bottom: 1.5vw;
-    right: 1.5vw;
+    bottom: var(--edge-gap);
+    right: var(--edge-gap);
     display: flex;
     gap: 1vw;
     font-size: 18px;
@@ -152,41 +166,88 @@ body, html {
 
 /* Very small screens */
 @media (max-width: 399px) {
+    :root {
+        --frame-border: 16px;
+        --frame-padding: 16px;
+        --edge-gap: 16px;
+    }
     #name {
-        font-size: 28px;
+        font-size: 34px;
+        font-weight: 400;
+        text-align: center;
     }
     #title {
-        font-size: 14px;
+        font-size: 18px;
+        font-weight: 400;
+        text-align: center;
     }
     #social-media a p,
     #social-media p {
-        font-size: 12px; /* Consistent font size for all elements */
+        font-size: 16px; /* Consistent font size for all elements */
     }
     #quote {
         font-size: 0;
     }
     #author {
         font-size: 0;
+    }
+    #inner-frame {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    #social-media {
+        left: 50%;
+        right: auto;
+        transform: translateX(-50%);
+        gap: 4vw;
     }
 }
 
 /* Small screens */
-@media (min-width: 400px) {
+@media (min-width: 400px) and (max-width: 599px) {
+    :root {
+        --frame-border: 16px;
+        --frame-padding: 16px;
+        --edge-gap: 16px;
+    }
     #name {
-        font-size: 33px;
+        font-size: 38px;
+        font-weight: 400;
+        text-align: center;
     }
     #title {
-        font-size: 16px;
+        font-size: 20px;
+        font-weight: 400;
+        text-align: center;
     }
     #social-media a p,
     #social-media p {
-        font-size: 12px; /* Consistent font size for all elements */
+        font-size: 18px; /* Consistent font size for all elements */
     }
     #quote {
         font-size: 0;
     }
     #author {
         font-size: 0;
+    }
+    #inner-frame {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    #social-media {
+        left: 50%;
+        right: auto;
+        transform: translateX(-50%);
+        gap: 4vw;
+    }
+}
+
+/* Small screens: keep quote within bounds without colliding */
+@media (max-width: 599px) {
+    #quote-container {
+        display: none;
     }
 }
 
@@ -240,10 +301,12 @@ body, html {
         font-size: 25px; /* Consistent font size for all elements */
     }
     #quote-container {
-        width: 23%;
+        width: min(42vw, 820px);
     }
     #quote {
         font-size: 25px;
+        white-space: nowrap;
+        width: 100%;
     }
     #author {
         font-size: 20px;

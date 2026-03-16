@@ -7,6 +7,7 @@ camera.lookAt(0, 0, 0);
 
 const renderer = new THREE.WebGLRenderer({ alpha: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 document.getElementById('sphere').appendChild(renderer.domElement);
 
 scene.background = null;
@@ -27,11 +28,18 @@ function calculateRadius() {
     return Math.min(window.innerWidth, window.innerHeight) / (window.innerWidth < 500 ? 32 : 60);
 }
 
-// Helper function to calculate points per line based on resolution
-function calculatePointsPerLine() {
-    const baseCount = 2500;
-    const scaleFactor = (window.innerWidth * window.innerHeight) / (1920 * 1080);
-    return Math.floor(baseCount * scaleFactor);
+// Helper function to calculate particle density based on resolution
+function calculateDensityProfile() {
+    const area = window.innerWidth * window.innerHeight;
+    const scaleFactor = Math.min(1.5, Math.max(0.75, area / (1920 * 1080)));
+    const isSmallScreen = window.matchMedia('(max-width: 700px)').matches;
+
+    return {
+        latitudeLines: Math.round((isSmallScreen ? 18 : 28) * scaleFactor),
+        longitudeLines: Math.round((isSmallScreen ? 18 : 28) * scaleFactor),
+        pointsPerLine: Math.round((isSmallScreen ? 1200 : 2800) * scaleFactor),
+        pointSize: isSmallScreen ? 0.024 : 0.02
+    };
 }
 
 // Helper function to create a structured sphere
@@ -41,9 +49,10 @@ function createStructuredSphere(radius) {
     const particlesGeometry = new THREE.BufferGeometry();
     const positions = [];
 
-    const latitudeLines = 20;
-    const longitudeLines = 20;
-    const pointsPerLine = calculatePointsPerLine();
+    const density = calculateDensityProfile();
+    const latitudeLines = density.latitudeLines;
+    const longitudeLines = density.longitudeLines;
+    const pointsPerLine = density.pointsPerLine;
 
     // Create latitude lines
     for (let lat = 0; lat < latitudeLines; lat++) {
@@ -67,7 +76,7 @@ function createStructuredSphere(radius) {
 
     const particlesMaterial = new THREE.PointsMaterial({
         color: 0xffae00,
-        size: 0.02,
+        size: density.pointSize,
         transparent: false
     });
 
@@ -93,14 +102,22 @@ window.addEventListener('resize', () => {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
     const newRadius = calculateRadius();
     createStructuredSphere(newRadius);
 });
 
 // Animation loop
-function animate() {
+const targetFps = window.matchMedia('(max-width: 1000px)').matches ? 30 : 60;
+const frameInterval = 1000 / targetFps;
+let lastFrameTime = 0;
+
+function animate(now) {
     requestAnimationFrame(animate);
+
+    if (now - lastFrameTime < frameInterval) return;
+    lastFrameTime = now;
 
     if (particleSystem) {
         particleSystem.rotation.y -= 0.002;
@@ -109,4 +126,4 @@ function animate() {
     renderer.render(scene, camera);
 }
 
-animate();
+requestAnimationFrame(animate);
