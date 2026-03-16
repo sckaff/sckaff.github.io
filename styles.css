@@ -10,6 +10,10 @@ body, html {
     overflow: hidden;
 }
 
+body.gol-fallback {
+    background-color: #0f0f0f;
+}
+
 :root {
     --frame-border: clamp(12px, 2.4vw, 34px);
     --frame-padding: clamp(12px, 2vw, 28px);
@@ -23,6 +27,10 @@ body, html {
     height: 100%;
     top: 0;
     left: 0;
+}
+
+#game-of-life.gol-fallback {
+    background-color: #0f0f0f;
 }
 
 #sphere {

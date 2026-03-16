@@ -79,7 +79,33 @@ const fragmentShaderBufferSource = `
 const container = document.getElementById("game-of-life");
 
 if (container) {
-  initGameOfLife(container);
+  try {
+    if (!isWebGLAvailable()) {
+      throw new Error("WebGL not available");
+    }
+    initGameOfLife(container);
+  } catch (error) {
+    enableGoLFallback(container);
+  }
+}
+
+function isWebGLAvailable() {
+  try {
+    const canvas = document.createElement("canvas");
+    return !!(
+      window.WebGLRenderingContext &&
+      (canvas.getContext("webgl") || canvas.getContext("experimental-webgl"))
+    );
+  } catch (error) {
+    return false;
+  }
+}
+
+function enableGoLFallback(containerEl) {
+  containerEl.classList.add("gol-fallback");
+  if (document.body) {
+    document.body.classList.add("gol-fallback");
+  }
 }
 
 function initGameOfLife(containerEl) {
