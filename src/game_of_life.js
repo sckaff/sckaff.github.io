@@ -87,9 +87,7 @@ function startGameOfLife(containerEl) {
     if (!isWebGLAvailable()) {
       throw new Error("WebGL not available");
     }
-    waitForNonZeroSize(containerEl, () => {
-      initGameOfLife(containerEl);
-    });
+    initGameOfLife(containerEl);
   } catch (error) {
     enableGoLFallback(containerEl);
   }
@@ -114,31 +112,6 @@ function enableGoLFallback(containerEl) {
   }
 }
 
-function waitForNonZeroSize(containerEl, onReady) {
-  let attempts = 0;
-  const maxAttempts = 120; // ~2s at 60fps
-
-  const check = () => {
-    const width = containerEl.clientWidth;
-    const height = containerEl.clientHeight;
-
-    if (width > 0 && height > 0) {
-      onReady();
-      return;
-    }
-
-    attempts += 1;
-    if (attempts >= maxAttempts) {
-      enableGoLFallback(containerEl);
-      return;
-    }
-
-    window.requestAnimationFrame(check);
-  };
-
-  window.requestAnimationFrame(check);
-}
-
 function initGameOfLife(containerEl) {
   /**
    * Base
@@ -152,8 +125,8 @@ function initGameOfLife(containerEl) {
    * Sizes
    */
   const sizes = {
-    width: containerEl.clientWidth,
-    height: containerEl.clientHeight
+    width: Math.max(1, containerEl.clientWidth),
+    height: Math.max(1, containerEl.clientHeight)
   };
 
   /**
@@ -193,33 +166,6 @@ function initGameOfLife(containerEl) {
     renderSize.width,
     renderSize.height,
     renderSize.pixelRatio
-  );
-
-  /**
-   * Render Buffers
-   */
-  let renderBufferA = new THREE.WebGLRenderTarget(
-    renderSize.width,
-    renderSize.height,
-    {
-      minFilter: THREE.NearestFilter,
-      magFilter: THREE.NearestFilter,
-      format: THREE.RGBAFormat,
-      type: THREE.FloatType,
-      stencilBuffer: false
-    }
-  );
-
-  let renderBufferB = new THREE.WebGLRenderTarget(
-    renderSize.width,
-    renderSize.height,
-    {
-      minFilter: THREE.NearestFilter,
-      magFilter: THREE.NearestFilter,
-      format: THREE.RGBAFormat,
-      type: THREE.FloatType,
-      stencilBuffer: false
-    }
   );
 
   // Buffer Material
@@ -266,21 +212,62 @@ function initGameOfLife(containerEl) {
   // Append to the scene-container element instead of body
   containerEl.appendChild(renderer.domElement);
 
-  if (!supportsFloatRenderTargets(renderer)) {
-    renderer.dispose();
-    if (renderer.domElement && renderer.domElement.parentNode === containerEl) {
-      containerEl.removeChild(renderer.domElement);
+  /**
+   * Render Buffers
+   */
+  const renderTargetType = pickRenderTargetType(renderer);
+  let renderBufferA = new THREE.WebGLRenderTarget(
+    renderSize.width,
+    renderSize.height,
+    {
+      minFilter: THREE.NearestFilter,
+      magFilter: THREE.NearestFilter,
+      format: THREE.RGBAFormat,
+      type: renderTargetType,
+      stencilBuffer: false
     }
-    enableGoLFallback(containerEl);
-    return;
-  }
+  );
+
+  let renderBufferB = new THREE.WebGLRenderTarget(
+    renderSize.width,
+    renderSize.height,
+    {
+      minFilter: THREE.NearestFilter,
+      magFilter: THREE.NearestFilter,
+      format: THREE.RGBAFormat,
+      type: renderTargetType,
+      stencilBuffer: false
+    }
+  );
 
   const resetBuffers = () => {
     renderSize = getRenderSize();
     dataTexture = createDataTexture(renderSize.width, renderSize.height);
 
-    renderBufferA.setSize(renderSize.width, renderSize.height);
-    renderBufferB.setSize(renderSize.width, renderSize.height);
+    renderBufferA.dispose();
+    renderBufferB.dispose();
+    renderBufferA = new THREE.WebGLRenderTarget(
+      renderSize.width,
+      renderSize.height,
+      {
+        minFilter: THREE.NearestFilter,
+        magFilter: THREE.NearestFilter,
+        format: THREE.RGBAFormat,
+        type: renderTargetType,
+        stencilBuffer: false
+      }
+    );
+    renderBufferB = new THREE.WebGLRenderTarget(
+      renderSize.width,
+      renderSize.height,
+      {
+        minFilter: THREE.NearestFilter,
+        magFilter: THREE.NearestFilter,
+        format: THREE.RGBAFormat,
+        type: renderTargetType,
+        stencilBuffer: false
+      }
+    );
 
     resolution.set(renderSize.width, renderSize.height, renderSize.pixelRatio);
     bufferMaterial.uniforms.uTexture.value = dataTexture;
@@ -292,8 +279,8 @@ function initGameOfLife(containerEl) {
   };
 
   const onWindowResize = () => {
-    sizes.width = containerEl.clientWidth;
-    sizes.height = containerEl.clientHeight;
+    sizes.width = Math.max(1, containerEl.clientWidth);
+    sizes.height = Math.max(1, containerEl.clientHeight);
     resetBuffers();
   };
 
@@ -302,6 +289,19 @@ function initGameOfLife(containerEl) {
     onWindowResize();
   });
   resizeObserver.observe(containerEl);
+
+  let sizePolls = 0;
+  const pollSize = () => {
+    if (containerEl.clientWidth > 0 && containerEl.clientHeight > 0) {
+      onWindowResize();
+      return;
+    }
+    sizePolls += 1;
+    if (sizePolls < 180) {
+      window.requestAnimationFrame(pollSize);
+    }
+  };
+  window.requestAnimationFrame(pollSize);
 
   /**
    * Camera
@@ -323,15 +323,6 @@ function initGameOfLife(containerEl) {
   let paused = false;
 
   let hasRendered = false;
-  const fallbackTimer = window.setTimeout(() => {
-    if (!hasRendered) {
-      renderer.dispose();
-      if (renderer.domElement && renderer.domElement.parentNode === containerEl) {
-        containerEl.removeChild(renderer.domElement);
-      }
-      enableGoLFallback(containerEl);
-    }
-  }, 2000);
 
   const tick = (now) => {
     if (paused) {
@@ -351,7 +342,6 @@ function initGameOfLife(containerEl) {
 
       if (!hasRendered) {
         hasRendered = true;
-        window.clearTimeout(fallbackTimer);
       }
 
       const temp = renderBufferA;
@@ -379,19 +369,33 @@ function initGameOfLife(containerEl) {
   window.requestAnimationFrame(tick);
 }
 
-function supportsFloatRenderTargets(renderer) {
+function pickRenderTargetType(renderer) {
   if (!renderer || !renderer.extensions) {
-    return false;
+    return THREE.UnsignedByteType;
   }
 
-  if (renderer.capabilities && renderer.capabilities.isWebGL2) {
-    return renderer.extensions.has("EXT_color_buffer_float");
+  const isWebGL2 = renderer.capabilities && renderer.capabilities.isWebGL2;
+  const hasFloatTex = isWebGL2 || renderer.extensions.has("OES_texture_float");
+  const hasHalfFloatTex = isWebGL2 || renderer.extensions.has("OES_texture_half_float");
+
+  const hasFloatRT = isWebGL2
+    ? renderer.extensions.has("EXT_color_buffer_float")
+    : (renderer.extensions.has("EXT_color_buffer_float") ||
+        renderer.extensions.has("WEBGL_color_buffer_float"));
+
+  const hasHalfFloatRT = isWebGL2
+    ? true
+    : renderer.extensions.has("EXT_color_buffer_half_float");
+
+  if (hasFloatTex && hasFloatRT) {
+    return THREE.FloatType;
   }
 
-  return (
-    renderer.extensions.has("OES_texture_float") &&
-    renderer.extensions.has("WEBGL_color_buffer_float")
-  );
+  if (hasHalfFloatTex && hasHalfFloatRT) {
+    return THREE.HalfFloatType;
+  }
+
+  return THREE.UnsignedByteType;
 }
 
 /**
