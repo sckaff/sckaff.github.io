@@ -81,7 +81,7 @@ body.gol-fallback {
     font-family: 'NeueHaasDisplayXThin', monospace;
     color: #909090;
     text-shadow: -1px 0 #0f0f0f, 0 1px #0f0f0f, 1px 0 #0f0f0f, 0 -1px #0f0f0f;
-    margin: 0 0 0 0;
+    margin: -10px 0 0 0;
 }
 
 #quote-container {
