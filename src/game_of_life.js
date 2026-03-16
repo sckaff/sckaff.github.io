@@ -79,13 +79,19 @@ const fragmentShaderBufferSource = `
 const container = document.getElementById("game-of-life");
 
 if (container) {
+  startGameOfLife(container);
+}
+
+function startGameOfLife(containerEl) {
   try {
     if (!isWebGLAvailable()) {
       throw new Error("WebGL not available");
     }
-    initGameOfLife(container);
+    waitForNonZeroSize(containerEl, () => {
+      initGameOfLife(containerEl);
+    });
   } catch (error) {
-    enableGoLFallback(container);
+    enableGoLFallback(containerEl);
   }
 }
 
@@ -106,6 +112,31 @@ function enableGoLFallback(containerEl) {
   if (document.body) {
     document.body.classList.add("gol-fallback");
   }
+}
+
+function waitForNonZeroSize(containerEl, onReady) {
+  let attempts = 0;
+  const maxAttempts = 120; // ~2s at 60fps
+
+  const check = () => {
+    const width = containerEl.clientWidth;
+    const height = containerEl.clientHeight;
+
+    if (width > 0 && height > 0) {
+      onReady();
+      return;
+    }
+
+    attempts += 1;
+    if (attempts >= maxAttempts) {
+      enableGoLFallback(containerEl);
+      return;
+    }
+
+    window.requestAnimationFrame(check);
+  };
+
+  window.requestAnimationFrame(check);
 }
 
 function initGameOfLife(containerEl) {
@@ -235,6 +266,15 @@ function initGameOfLife(containerEl) {
   // Append to the scene-container element instead of body
   containerEl.appendChild(renderer.domElement);
 
+  if (!supportsFloatRenderTargets(renderer)) {
+    renderer.dispose();
+    if (renderer.domElement && renderer.domElement.parentNode === containerEl) {
+      containerEl.removeChild(renderer.domElement);
+    }
+    enableGoLFallback(containerEl);
+    return;
+  }
+
   const resetBuffers = () => {
     renderSize = getRenderSize();
     dataTexture = createDataTexture(renderSize.width, renderSize.height);
@@ -258,6 +298,10 @@ function initGameOfLife(containerEl) {
   };
 
   window.addEventListener("resize", onWindowResize);
+  const resizeObserver = new ResizeObserver(() => {
+    onWindowResize();
+  });
+  resizeObserver.observe(containerEl);
 
   /**
    * Camera
@@ -278,6 +322,17 @@ function initGameOfLife(containerEl) {
   let lastFrameTime = 0;
   let paused = false;
 
+  let hasRendered = false;
+  const fallbackTimer = window.setTimeout(() => {
+    if (!hasRendered) {
+      renderer.dispose();
+      if (renderer.domElement && renderer.domElement.parentNode === containerEl) {
+        containerEl.removeChild(renderer.domElement);
+      }
+      enableGoLFallback(containerEl);
+    }
+  }, 2000);
+
   const tick = (now) => {
     if (paused) {
       window.requestAnimationFrame(tick);
@@ -293,6 +348,11 @@ function initGameOfLife(containerEl) {
       mesh.material.uniforms.uTexture.value = renderBufferA.texture;
       renderer.setRenderTarget(null);
       renderer.render(scene, camera);
+
+      if (!hasRendered) {
+        hasRendered = true;
+        window.clearTimeout(fallbackTimer);
+      }
 
       const temp = renderBufferA;
       renderBufferA = renderBufferB;
@@ -317,6 +377,21 @@ function initGameOfLife(containerEl) {
 
   resetBuffers();
   window.requestAnimationFrame(tick);
+}
+
+function supportsFloatRenderTargets(renderer) {
+  if (!renderer || !renderer.extensions) {
+    return false;
+  }
+
+  if (renderer.capabilities && renderer.capabilities.isWebGL2) {
+    return renderer.extensions.has("EXT_color_buffer_float");
+  }
+
+  return (
+    renderer.extensions.has("OES_texture_float") &&
+    renderer.extensions.has("WEBGL_color_buffer_float")
+  );
 }
 
 /**
