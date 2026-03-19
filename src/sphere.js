@@ -2,7 +2,7 @@ import * as THREE from 'three';
 
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-camera.position.set(2, 5, 15);
+camera.position.set(0, 3.5, 15);
 camera.lookAt(0, 0, 0);
 
 const renderer = new THREE.WebGLRenderer({ alpha: true });
@@ -16,12 +16,14 @@ const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
 scene.add(ambientLight);
 
 const directionalLight = new THREE.DirectionalLight(0xffffff, 2);
-directionalLight.position.set(50, 0, 50).normalize();
+directionalLight.position.set(20, 12, 24).normalize();
 scene.add(directionalLight);
 
 let particleSystem;
+let tiltGroup;
 
 const TILT = 23.5 * (Math.PI / 180);
+const INITIAL_LONGITUDE = -0.35;
 
 // Helper function to calculate radius based on screen size
 function calculateRadius() {
@@ -44,7 +46,7 @@ function calculateDensityProfile() {
 
 // Helper function to create a structured sphere
 function createStructuredSphere(radius) {
-    if (particleSystem) scene.remove(particleSystem);
+    if (tiltGroup) scene.remove(tiltGroup);
 
     const particlesGeometry = new THREE.BufferGeometry();
     const positions = [];
@@ -81,15 +83,19 @@ function createStructuredSphere(radius) {
     });
 
     particleSystem = new THREE.Points(particlesGeometry, particlesMaterial);
-    particleSystem.rotation.x = TILT;
-    scene.add(particleSystem);
+    particleSystem.rotation.y = INITIAL_LONGITUDE;
+
+    tiltGroup = new THREE.Group();
+    tiltGroup.rotation.z = TILT;
+    tiltGroup.add(particleSystem);
+    scene.add(tiltGroup);
 }
 
 // Helper function to add a point with given parameters
 function addPoint(positions, radius, phi, theta, scale) {
     const x = radius * Math.sin(phi) * Math.cos(theta) * scale;
-    const y = radius * Math.sin(phi) * Math.sin(theta) * scale;
-    const z = radius * Math.cos(phi) * scale;
+    const y = radius * Math.cos(phi) * scale;
+    const z = radius * Math.sin(phi) * Math.sin(theta) * scale;
     positions.push(x, y, z);
 }
 

@@ -185,7 +185,7 @@ function initGameOfLife(containerEl) {
     uniforms: {
       uTexture: { value: null },
       uIntensity: { value: 1.0 },
-      uOpacity: { value: 0.45 },
+      uOpacity: { value: 0.75 },
       uResolution: {
         value: resolution
       }
