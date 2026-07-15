@@ -19,8 +19,9 @@ COMMIT_MESSAGE="$2"
 echo "Building project..."
 npm run build
 
-# Step 2: Rename dist to docs
-echo "Renaming dist to docs..."
+# Step 2: Replace docs with dist
+echo "Replacing docs with dist..."
+rm -rf docs
 mv dist docs
 
 # Step 3: Commit changes with the provided message
