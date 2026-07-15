@@ -15,9 +15,9 @@ fi
 # Extract commit message
 COMMIT_MESSAGE="$2"
 
-# Step 1: Add CNAME file to dist
-echo "Adding CNAME file to dist..."
-# Removed CNAME redirect - using sckaff.github.io
+# Step 1: Build the project
+echo "Building project..."
+npm run build
 
 # Step 2: Rename dist to docs
 echo "Renaming dist to docs..."

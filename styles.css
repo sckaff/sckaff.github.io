@@ -133,8 +133,20 @@ body.gol-fallback {
     text-shadow: -1px 0 #0f0f0f, 0 1px #0f0f0f, 1px 0 #0f0f0f, 0 -1px #0f0f0f;
 }
 
+#pdf-links {
+    position: absolute;
+    color: #909090;
+    bottom: var(--edge-gap);
+    left: var(--edge-gap);
+    display: flex;
+    gap: 1vw;
+    font-size: 18px;
+    text-shadow: -1px 0 #0f0f0f, 0 1px #0f0f0f, 1px 0 #0f0f0f, 0 -1px #0f0f0f;
+}
+
 /* Base styles for social media links */
-#social-media a p {
+#social-media a p,
+#pdf-links a p {
     position: relative;
     color: #909090;
     text-transform: uppercase;
@@ -143,12 +155,14 @@ body.gol-fallback {
 }
 
 /* Hover state for the text color change */
-#social-media a:hover p {
+#social-media a:hover p,
+#pdf-links a:hover p {
     color: #ffae00;
 }
 
 /* Adding an underline effect on hover */
-#social-media a p::after {
+#social-media a p::after,
+#pdf-links a p::after {
     content: '';
     position: absolute;
     bottom: -3px; /* Adjust to position the line just below the text */
@@ -160,17 +174,20 @@ body.gol-fallback {
 }
 
 /* Expand the line on hover */
-#social-media a:hover p::after {
+#social-media a:hover p::after,
+#pdf-links a:hover p::after {
     width: 100%;
 }
 
 /* Optional: make the vertical divider lines lighter on hover */
-#social-media p:hover {
+#social-media p:hover,
+#pdf-links p:hover {
     color: #909090;
 }
 
 /* Adjustments for vertical dividers between links */
-#social-media p {
+#social-media p,
+#pdf-links p {
     color: #3d3d3d;
     transition: color 0.3s ease;
 }
@@ -193,7 +210,9 @@ body.gol-fallback {
         text-align: center;
     }
     #social-media a p,
-    #social-media p {
+    #social-media p,
+    #pdf-links a p,
+    #pdf-links p {
         font-size: 16px; /* Consistent font size for all elements */
     }
     #quote {
@@ -212,6 +231,9 @@ body.gol-fallback {
         right: auto;
         transform: translateX(-50%);
         gap: 4vw;
+    }
+    #pdf-links {
+        display: none;
     }
 }
 
@@ -233,7 +255,9 @@ body.gol-fallback {
         text-align: center;
     }
     #social-media a p,
-    #social-media p {
+    #social-media p,
+    #pdf-links a p,
+    #pdf-links p {
         font-size: 18px; /* Consistent font size for all elements */
     }
     #quote {
@@ -253,11 +277,17 @@ body.gol-fallback {
         transform: translateX(-50%);
         gap: 4vw;
     }
+    #pdf-links {
+        display: none;
+    }
 }
 
 /* Small screens: keep quote within bounds without colliding */
 @media (max-width: 599px) {
     #quote-container {
+        display: none;
+    }
+    #pdf-links {
         display: none;
     }
 }
@@ -271,8 +301,14 @@ body.gol-fallback {
         font-size: 17px;
     }
     #social-media a p,
-    #social-media p {
+    #social-media p,
+    #pdf-links a p,
+    #pdf-links p {
         font-size: 20px; /* Consistent font size for all elements */
+    }
+    .jda-divider,
+    .jda-link {
+        display: none;
     }
 }
 
@@ -285,7 +321,9 @@ body.gol-fallback {
         font-size: 25px;
     }
     #social-media a p,
-    #social-media p {
+    #social-media p,
+    #pdf-links a p,
+    #pdf-links p {
         font-size: 22px; /* Consistent font size for all elements */
     }
     #quote-container {
@@ -308,7 +346,9 @@ body.gol-fallback {
         font-size: 30px;
     }
     #social-media a p,
-    #social-media p {
+    #social-media p,
+    #pdf-links a p,
+    #pdf-links p {
         font-size: 25px; /* Consistent font size for all elements */
     }
     #quote-container {
